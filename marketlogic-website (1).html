@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MarketLogic Analytics — Beauty & Cosmetics Competitive Intelligence Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#14121a;
+    --porcelain:#f7f3ef;
+    --coral:#e8546b;
+    --teal:#1f8a82;
+    --gold:#c9a15d;
+    --grey:#9b95a6;
+    --line: rgba(20,18,26,0.12);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--porcelain);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    line-height:1.5;
+    overflow-x:hidden;
+  }
+  .mono{
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing:0.04em;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:var(--coral);
+    margin-bottom:14px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .eyebrow::before{
+    content:'';
+    width:18px; height:1px;
+    background:var(--coral);
+    display:inline-block;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  section{
+    padding:96px 24px;
+    max-width:1120px;
+    margin:0 auto;
+    position:relative;
+  }
+  .divider{
+    max-width:1120px;
+    margin:0 auto;
+    height:1px;
+    background:var(--line);
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(247,243,239,0.88);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  .nav-inner{
+    max-width:1120px; margin:0 auto;
+    padding:18px 24px;
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .brand{
+    font-family:'Fraunces', serif; font-weight:700; font-size:1.05rem;
+  }
+  .brand span{ color:var(--coral); }
+  nav ul{
+    display:flex; gap:28px; list-style:none;
+  }
+  nav a{
+    color:var(--ink); text-decoration:none;
+    font-size:0.85rem; font-weight:500;
+    opacity:0.72;
+    transition:opacity 0.2s;
+  }
+  nav a:hover, nav a:focus-visible{ opacity:1; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    padding-top:88px; padding-bottom:60px;
+    display:grid; gap:56px;
+  }
+  .hero h1{
+    font-size:clamp(2.6rem, 6vw, 4.6rem);
+    line-height:0.98;
+    max-width:720px;
+  }
+  .hero p.sub{
+    max-width:560px;
+    font-size:1.08rem;
+    color:#3a3542;
+    margin-top:22px;
+  }
+  .hero-visual{
+    border:1px solid var(--line);
+    background:var(--ink);
+    border-radius:4px;
+    overflow:hidden;
+    position:relative;
+  }
+  .scan-table{
+    padding:22px;
+    position:relative;
+  }
+  .scan-row{
+    display:grid;
+    grid-template-columns: 1.4fr 1fr 0.9fr 0.9fr;
+    gap:10px;
+    padding:11px 4px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    color:rgba(247,243,239,0.82);
+    font-size:0.78rem;
+  }
+  .scan-row.head{
+    color:var(--gold);
+    font-size:0.68rem;
+    text-transform:uppercase;
+    letter-spacing:0.1em;
+  }
+  .scan-row .up{ color:var(--teal); }
+  .scan-row .down{ color:var(--coral); }
+  .scanline{
+    position:absolute;
+    left:0; right:0; height:2px;
+    background:linear-gradient(90deg, transparent, var(--teal), transparent);
+    box-shadow:0 0 16px 2px rgba(31,138,130,0.7);
+    animation: sweep 3.4s linear infinite;
+  }
+  @keyframes sweep{
+    0%{ top:8%; opacity:0; }
+    8%{ opacity:1; }
+    92%{ opacity:1; }
+    100%{ top:96%; opacity:0; }
+  }
+  @media (min-width:880px){
+    .hero{ grid-template-columns: 1fr 1fr; align-items:center; }
+  }
+
+  /* ---------- PIPELINE ---------- */
+  .pipeline{
+    display:flex; flex-direction:column; gap:0;
+    margin-top:44px;
+  }
+  .p-step{
+    display:grid;
+    grid-template-columns: 56px 1fr;
+    gap:22px;
+    padding:26px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .p-step:last-child{ border-bottom:none; }
+  .p-num{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.85rem; color:var(--grey);
+    padding-top:3px;
+  }
+  .p-step h3{ font-size:1.15rem; font-weight:600; margin-bottom:6px; }
+  .p-step p{ color:#4a4552; font-size:0.95rem; max-width:640px; }
+  .p-tags{
+    margin-top:10px;
+    display:flex; flex-wrap:wrap; gap:8px;
+  }
+  .p-tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.7rem;
+    padding:4px 9px;
+    border:1px solid var(--line);
+    border-radius:2px;
+    color:#4a4552;
+  }
+
+  /* ---------- SOURCES GRID ---------- */
+  .sources-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+    margin-top:40px;
+  }
+  @media(min-width:720px){ .sources-grid{ grid-template-columns:repeat(3,1fr); } }
+  .source-card{
+    background:var(--porcelain);
+    padding:26px 22px;
+  }
+  .source-card .tag{
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.68rem; color:var(--teal);
+    text-transform:uppercase; letter-spacing:0.08em;
+  }
+  .source-card h4{
+    font-family:'Fraunces', serif; font-weight:600;
+    font-size:1.05rem; margin:8px 0 6px;
+  }
+  .source-card p{ font-size:0.85rem; color:#5a5560; }
+
+  /* ---------- DASHBOARD ---------- */
+  .dash-grid{
+    display:grid; gap:20px; margin-top:40px;
+  }
+  @media(min-width:880px){ .dash-grid{ grid-template-columns: 1.15fr 0.85fr; } }
+  .card{
+    border:1px solid var(--line);
+    background:#fff;
+    padding:22px;
+    border-radius:4px;
+  }
+  .card h4{
+    font-family:'Fraunces', serif; font-size:1rem; font-weight:600; margin-bottom:2px;
+  }
+  .card .cap{ font-size:0.78rem; color:var(--grey); margin-bottom:14px; }
+  .card canvas{ max-height:260px; }
+  .full{ grid-column:1/-1; }
+  .footnote{
+    margin-top:22px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:0.72rem; color:var(--grey);
+    border-top:1px dashed var(--line);
+    padding-top:14px;
+  }
+
+  /* ---------- TEAM ---------- */
+  .team-grid{
+    display:grid; grid-template-columns:repeat(2,1fr); gap:16px; margin-top:40px;
+  }
+  @media(min-width:720px){ .team-grid{ grid-template-columns:repeat(3,1fr); } }
+  .team-card{
+    border:1px solid var(--line); padding:20px;
+    background:#fff;
+  }
+  .team-card .initials{
+    width:38px; height:38px; border-radius:50%;
+    background:var(--ink); color:var(--porcelain);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace; font-size:0.78rem;
+    margin-bottom:14px;
+  }
+  .team-card.lead .initials{ background:var(--coral); }
+  .team-card h4{ font-size:0.98rem; font-weight:600; font-family:'Inter'; }
+  .team-card .role{ font-size:0.78rem; color:var(--grey); margin-top:2px; }
+
+  footer{
+    padding:48px 24px 64px;
+    text-align:center;
+  }
+  footer p{ font-size:0.8rem; color:var(--grey); }
+  footer .brand{ justify-content:center; display:flex; margin-bottom:10px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .scanline{ animation:none; opacity:0.5; top:50%; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <div class="brand">MarketLogic<span>.</span></div>
+    <ul>
+      <li><a href="#pipeline">Pipeline</a></li>
+      <li><a href="#sources">Sources</a></li>
+      <li><a href="#dashboard">Readout</a></li>
+      <li><a href="#team">Team</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="eyebrow">Beauty &amp; Cosmetics · Competitive Intelligence Engine</div>
+    <h1>MarketLogic<br>Analytics</h1>
+    <p class="sub">Six feeds scan the beauty market every day — prices, ads, reviews, trends. Three AI chains reason over what changed. One synthesis tells you what to do about it, before your first coffee.</p>
+  </div>
+  <div class="hero-visual">
+    <div class="scan-table">
+      <div class="scanline"></div>
+      <div class="scan-row head"><div>SKU / Brand</div><div>Platform</div><div>Price Δ</div><div>Buzz</div></div>
+      <div class="scan-row"><div>Lakme 9to5 Primer</div><div>Nykaa</div><div class="down">-6%</div><div class="up">↑ 82</div></div>
+      <div class="scan-row"><div>Maybelline SuperStay</div><div>Purplle</div><div class="up">+2%</div><div class="up">↑ 74</div></div>
+      <div class="scan-row"><div>Minimalist 10% Niacin.</div><div>Tira</div><div>0%</div><div class="down">↓ 41</div></div>
+      <div class="scan-row"><div>Mamaearth Vit-C</div><div>Nykaa</div><div class="down">-12%</div><div class="up">↑ 90</div></div>
+      <div class="scan-row"><div>L'Oreal Revitalift</div><div>Purplle</div><div class="up">+4%</div><div>58</div></div>
+      <div class="scan-row"><div>Lakme Absolute</div><div>Tira</div><div class="down">-3%</div><div class="up">↑ 66</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="pipeline">
+  <div class="eyebrow">How it runs</div>
+  <h2 style="font-size:clamp(1.7rem,3.4vw,2.3rem);">One trigger, six feeds, one verdict</h2>
+  <div class="pipeline">
+    <div class="p-step">
+      <div class="p-num">01</div>
+      <div>
+        <h3>Schedule Trigger</h3>
+        <p>Fires once daily and fans out to every ingestion node in parallel — nothing waits on anything else.</p>
+      </div>
+    </div>
+    <div class="p-step">
+      <div class="p-num">02</div>
+      <div>
+        <h3>Six ingestion nodes, run in parallel</h3>
+        <p>Each node pulls a different slice of the market: what competitors are selling, how the brand's own site is performing, and what's trending around it.</p>
+        <div class="p-tags">
+          <span class="p-tag">Competitor Scraper — Nykaa / Purplle / Tira</span>
+          <span class="p-tag">GA4</span>
+          <span class="p-tag">Instagram Reels</span>
+          <span class="p-tag">Meta Ads</span>
+          <span class="p-tag">Inventory</span>
+          <span class="p-tag">Reviews</span>
+        </div>
+      </div>
+    </div>
+    <div class="p-step">
+      <div class="p-num">03</div>
+      <div>
+        <h3>Normalise &amp; Merge</h3>
+        <p>Six mismatched schemas become one dataset — same brand, same SKU, same day, no matter which platform it came from.</p>
+      </div>
+    </div>
+    <div class="p-step">
+      <div class="p-num">04</div>
+      <div>
+        <h3>Three AI agent chains, run in parallel</h3>
+        <p>Each chain specialises in one lens on the merged data, so no single agent has to reason about everything at once.</p>
+        <div class="p-tags">
+          <span class="p-tag">Pricing &amp; Promotions Agent</span>
+          <span class="p-tag">Trend &amp; Buzz Agent</span>
+          <span class="p-tag">Sentiment &amp; Reviews Agent</span>
+        </div>
+      </div>
+    </div>
+    <div class="p-step">
+      <div class="p-num">05</div>
+      <div>
+        <h3>Master AI Synthesis</h3>
+        <p>Reconciles the three chains into a single daily read: what moved, why it matters, and what's worth acting on.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="sources">
+  <div class="eyebrow">Data sources</div>
+  <h2 style="font-size:clamp(1.7rem,3.4vw,2.3rem);">Six feeds, one market view</h2>
+  <div class="sources-grid">
+    <div class="source-card">
+      <div class="tag">Scraper</div>
+      <h4>Competitor Pricing</h4>
+      <p>SKU-level prices and promotions across Nykaa, Purplle, and Tira.</p>
+    </div>
+    <div class="source-card">
+      <div class="tag">Analytics</div>
+      <h4>GA4</h4>
+      <p>On-site behaviour — sessions, funnels, and conversion by product.</p>
+    </div>
+    <div class="source-card">
+      <div class="tag">Social</div>
+      <h4>Instagram Reels</h4>
+      <p>Engagement and reach on short-form content tied to specific SKUs.</p>
+    </div>
+    <div class="source-card">
+      <div class="tag">Paid</div>
+      <h4>Meta Ads</h4>
+      <p>Spend, creative performance, and audience response across campaigns.</p>
+    </div>
+    <div class="source-card">
+      <div class="tag">Ops</div>
+      <h4>Inventory</h4>
+      <p>Stock position by SKU and platform — where availability is driving price.</p>
+    </div>
+    <div class="source-card">
+      <div class="tag">Voice</div>
+      <h4>Reviews</h4>
+      <p>Rating trends and review text feeding the Sentiment &amp; Reviews Agent.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="dashboard">
+  <div class="eyebrow">Sample readout</div>
+  <h2 style="font-size:clamp(1.7rem,3.4vw,2.3rem);">What the synthesis surfaces</h2>
+  <div class="dash-grid">
+    <div class="card">
+      <h4>Average price index by brand</h4>
+      <div class="cap">Indexed vs. category average, across all six platforms</div>
+      <canvas id="priceChart"></canvas>
+    </div>
+    <div class="card">
+      <h4>Platform share of tracked SKUs</h4>
+      <div class="cap">Where the 336-row test set draws its listings from</div>
+      <canvas id="platformChart"></canvas>
+    </div>
+    <div class="card full">
+      <h4>External Buzz Score, 7-day trend</h4>
+      <div class="cap">Trending_Keyword + Live_Trend_Direction, blended per brand</div>
+      <canvas id="buzzChart"></canvas>
+    </div>
+  </div>
+  <div class="footnote">Charts are rendered from a synthetic 336-row / 38-column test dataset (4 sheets) used ahead of live API connections — not production data.</div>
+</section>
+
+<div class="divider"></div>
+
+<section id="team">
+  <div class="eyebrow">Built by</div>
+  <h2 style="font-size:clamp(1.7rem,3.4vw,2.3rem);">The team behind MarketLogic</h2>
+  <div class="team-grid">
+    <div class="team-card lead"><div class="initials">SB</div><h4>Sristika B.</h4></div>
+    <div class="team-card lead"><div class="initials">SS</div><h4>Sohinee Sinha</h4><div class="role">Team Lead</div></div>
+    <div class="team-card"><div class="initials">DR</div><h4>Dharani R.</h4></div>
+    <div class="team-card"><div class="initials">A</div><h4>Anny</h4></div>
+    <div class="team-card"><div class="initials">RR</div><h4>Rashmi Ram</h4></div>
+    <div class="team-card"><div class="initials">C</div><h4>Chethana</h4></div>
+  </div>
+</section>
+
+<footer>
+  <div class="brand">MarketLogic<span>.</span></div>
+  <p>Built on n8n workflow orchestration and the Claude API · Beauty & Cosmetics Competitive Intelligence Engine</p>
+</footer>
+
+<script>
+  const gridColor = 'rgba(20,18,26,0.06)';
+  const fontFamily = "'Inter', sans-serif";
+  Chart.defaults.font.family = fontFamily;
+  Chart.defaults.color = '#4a4552';
+
+  new Chart(document.getElementById('priceChart'), {
+    type: 'bar',
+    data: {
+      labels: ["Lakme","Maybelline","L'Oreal","Minimalist","Mamaearth"],
+      datasets: [{
+        label: 'Price Index',
+        data: [96, 102, 118, 89, 94],
+        backgroundColor: ['#e8546b','#1f8a82','#c9a15d','#1f8a82','#e8546b'],
+        borderRadius: 3,
+        maxBarThickness: 42
+      }]
+    },
+    options: {
+      responsive:true,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        y:{ grid:{ color: gridColor }, ticks:{ callback:v=>v } },
+        x:{ grid:{ display:false } }
+      }
+    }
+  });
+
+  new Chart(document.getElementById('platformChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ["Nykaa","Purplle","Tira","Amazon","Flipkart","Myntra"],
+      datasets: [{
+        data: [28, 22, 18, 14, 10, 8],
+        backgroundColor: ['#14121a','#e8546b','#1f8a82','#c9a15d','#9b95a6','#d8d2c8'],
+        borderWidth: 2,
+        borderColor:'#f7f3ef'
+      }]
+    },
+    options: {
+      responsive:true,
+      plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, font:{size:11} } } }
+    }
+  });
+
+  new Chart(document.getElementById('buzzChart'), {
+    type: 'line',
+    data: {
+      labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+      datasets: [
+        { label:'Lakme', data:[60,64,70,68,75,82,88], borderColor:'#e8546b', backgroundColor:'transparent', tension:0.35 },
+        { label:'Mamaearth', data:[50,55,58,63,70,84,90], borderColor:'#1f8a82', backgroundColor:'transparent', tension:0.35 },
+        { label:'Minimalist', data:[55,52,48,45,42,41,41], borderColor:'#c9a15d', backgroundColor:'transparent', tension:0.35 }
+      ]
+    },
+    options: {
+      responsive:true,
+      plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, font:{size:11} } } },
+      scales:{ y:{ grid:{ color:gridColor } }, x:{ grid:{ display:false } } }
+    }
+  });
+</script>
+
+</body>
+</html>
